@@ -21,7 +21,7 @@ func New(dir string) *app.App {
 
 	encoding := cosmoscmd.MakeEncodingConfig(app.ModuleBasics)
 
-	a := app.New(logger, db, nil, true, map[int64]bool{}, dir, 0, encoding,
+	a := app.NewStargazeApp(logger, db, nil, true, map[int64]bool{}, dir, 0, encoding,
 		simapp.EmptyAppOptions{})
 	// InitChain updates deliverState which is required when app.NewContext is called
 	a.InitChain(abci.RequestInitChain{
