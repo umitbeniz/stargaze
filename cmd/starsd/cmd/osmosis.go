@@ -132,8 +132,8 @@ Example:
 
 				address := delegation.DelegatorAddress
 				delegationAmount := val.TokensFromShares(delegation.Shares).Quo(sdk.NewDec(1_000_000))
-				// MIN 5OSMO
-				if delegationAmount.LT(sdk.NewDec(5)) {
+				// MIN 50_OSMO
+				if delegationAmount.LT(sdk.NewDec(50)) {
 					continue
 				}
 

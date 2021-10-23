@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"io/ioutil"
 	"os"
+	"strings"
 
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/client/flags"
@@ -24,6 +25,15 @@ type HubSnapshotAccount struct {
 	AtomAddress       string `json:"atom_address"`
 	AtomStaker        bool   `json:"atom_staker"`
 	StargazeDelegator bool   `json:"stargaze_delegator"`
+}
+
+func isIn(s string, ss []string) bool {
+	for _, t := range ss {
+		if t == s {
+			return true
+		}
+	}
+	return false
 }
 
 // ExportHubSnapshotCmd generates a snapshot.json from a provided Cosmos Hub genesis export.
@@ -64,6 +74,11 @@ Example:
 				return fmt.Errorf("failed to unmarshal genesis state: %w", err)
 			}
 
+			exchanges := strings.Split(strings.TrimSpace(os.Getenv("EXCHANGES")), ",")
+			fmt.Println("exchanges", len(exchanges))
+			if len(exchanges) == 0 || strings.TrimSpace(os.Getenv("EXCHANGES")) == "" {
+				panic("provide list of addresses")
+			}
 			stakingGenState := stakingtypes.GetGenesisStateFromAppState(cdc, appState)
 
 			// Make a map from validator operator address to the validator type
@@ -73,6 +88,9 @@ Example:
 			}
 
 			for _, delegation := range stakingGenState.Delegations {
+				if isIn(delegation.ValidatorAddress, exchanges) {
+					continue
+				}
 				val, ok := validators[delegation.ValidatorAddress]
 				if !ok {
 					panic(fmt.Sprintf("missing validator %s ", delegation.GetValidatorAddr()))

@@ -81,6 +81,7 @@ Example:
 			cdc := clientCtx.Codec
 			serverCtx := server.GetServerContextFromCmd(cmd)
 			config := serverCtx.Config
+			config.SetRoot(clientCtx.HomeDir)
 
 			// read genesis file
 			genFile := config.GenesisFile()
