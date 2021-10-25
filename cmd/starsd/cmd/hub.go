@@ -86,11 +86,12 @@ Example:
 			for _, validator := range stakingGenState.Validators {
 				validators[validator.OperatorAddress] = validator
 			}
-
+			amounts := make(map[string]sdk.Dec)
 			for _, delegation := range stakingGenState.Delegations {
 				if isIn(delegation.ValidatorAddress, exchanges) {
 					continue
 				}
+
 				val, ok := validators[delegation.ValidatorAddress]
 				if !ok {
 					panic(fmt.Sprintf("missing validator %s ", delegation.GetValidatorAddr()))
@@ -98,8 +99,14 @@ Example:
 
 				address := delegation.DelegatorAddress
 				delegationAmount := val.TokensFromShares(delegation.Shares).Quo(sdk.NewDec(1_000_000))
+				current, ok := amounts[address]
+				if !ok {
+					current = sdk.ZeroDec()
+				}
+				newAmount := current.Add(delegationAmount)
+				amounts[address] = newAmount
 				// MIN 5ATOM
-				if delegationAmount.LT(sdk.NewDec(5)) {
+				if newAmount.LT(sdk.NewDec(5)) {
 					continue
 				}
 				snapshotAccs[address] = HubSnapshotAccount{

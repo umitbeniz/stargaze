@@ -123,7 +123,7 @@ Example:
 			for _, validator := range stakingGenState.Validators {
 				validators[validator.OperatorAddress] = validator
 			}
-
+			amounts := make(map[string]sdk.Dec)
 			for _, delegation := range stakingGenState.Delegations {
 				val, ok := validators[delegation.ValidatorAddress]
 				if !ok {
@@ -132,8 +132,15 @@ Example:
 
 				address := delegation.DelegatorAddress
 				delegationAmount := val.TokensFromShares(delegation.Shares).Quo(sdk.NewDec(1_000_000))
+				current, ok := amounts[address]
+				if !ok {
+					current = sdk.ZeroDec()
+				}
+				newAmount := current.Add(delegationAmount)
+				amounts[address] = newAmount
+
 				// MIN 50_OSMO
-				if delegationAmount.LT(sdk.NewDec(50)) {
+				if newAmount.LT(sdk.NewDec(50)) {
 					continue
 				}
 

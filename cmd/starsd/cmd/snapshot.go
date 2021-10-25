@@ -142,19 +142,20 @@ Example:
 				if acct.StargazeRegenDelegator {
 					numRewards++
 				}
-				if acct.AtomStaker || acct.OsmoStaker {
+				if acct.AtomStaker {
 					numRewards++
 				}
-				if acct.OsmosisLiquidityProvider {
+				if acct.OsmosisLiquidityProvider || acct.OsmoStaker {
 					numRewards++
 				}
 			}
 
-			airdropSupply := sdk.NewInt(200_000_000_000_000)      // 200,000,000 STARS in ustars
+			airdropSupply := sdk.NewInt(250_000_000_000_000)      // 250,000,000 STARS in ustars
 			baseReward := airdropSupply.QuoRaw(int64(numRewards)) // 2,052,615,374 ~= 2,000 STARS per reward
 
 			// calculate airdrop amount
 			for addr, acct := range snapshotAccs {
+
 				amt := sdk.ZeroInt()
 				if acct.StargazeHubDelegator {
 					amt = amt.Add(baseReward)
@@ -165,10 +166,10 @@ Example:
 				if acct.StargazeRegenDelegator {
 					amt = amt.Add(baseReward)
 				}
-				if acct.AtomStaker || acct.OsmoStaker {
+				if acct.AtomStaker {
 					amt = amt.Add(baseReward)
 				}
-				if acct.OsmosisLiquidityProvider {
+				if acct.OsmosisLiquidityProvider || acct.OsmoStaker {
 					amt = amt.Add(baseReward)
 				}
 				acct.AirdropAmount = amt
