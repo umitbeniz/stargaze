@@ -141,15 +141,14 @@ Example:
 				if !ok {
 					// account does not exist
 					acc = OsmosisSnapshotAccount{
-						OsmoAddress:       address,
+						OsmoAddress: address,
+						// only assign as osmo staker if it is not an LP
 						OsmoStaker:        true,
 						LiquidityProvider: false,
 						StargazeDelegator: false,
 					}
-				} else {
-					// account exists
-					acc.OsmoStaker = true
 				}
+
 				stakerCount++
 				if delegation.ValidatorAddress == "osmovaloper1et77usu8q2hargvyusl4qzryev8x8t9weceqyk" {
 					acc.StargazeDelegator = true

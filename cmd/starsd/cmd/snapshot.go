@@ -150,7 +150,7 @@ Example:
 				}
 			}
 
-			airdropSupply := sdk.NewInt(150_000_000_000_000)      // 150,000,000 STARS in ustars
+			airdropSupply := sdk.NewInt(200_000_000_000_000)      // 200,000,000 STARS in ustars
 			baseReward := airdropSupply.QuoRaw(int64(numRewards)) // 2,052,615,374 ~= 2,000 STARS per reward
 
 			// calculate airdrop amount
