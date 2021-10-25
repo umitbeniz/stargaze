@@ -87,6 +87,8 @@ Example:
 				validators[validator.OperatorAddress] = validator
 			}
 			amounts := make(map[string]sdk.Dec)
+			stakers := 0
+			delegators := 0
 			for _, delegation := range stakingGenState.Delegations {
 				if isIn(delegation.ValidatorAddress, exchanges) {
 					continue
@@ -105,19 +107,28 @@ Example:
 				}
 				newAmount := current.Add(delegationAmount)
 				amounts[address] = newAmount
-				// MIN 5ATOM
-				if newAmount.LT(sdk.NewDec(5)) {
-					continue
+
+				acc, ok := snapshotAccs[address]
+				if !ok {
+					acc = HubSnapshotAccount{
+						AtomAddress: address,
+					}
 				}
-				snapshotAccs[address] = HubSnapshotAccount{
-					AtomAddress:       address,
-					AtomStaker:        true,
-					StargazeDelegator: false,
+				staker := false
+				stargazer := false
+				// MIN 5ATOM
+				if newAmount.GTE(sdk.NewDec(5)) {
+					acc.AtomStaker = true
+					staker = true
+					stakers++
 				}
 
-				if delegation.ValidatorAddress == "cosmosvaloper1et77usu8q2hargvyusl4qzryev8x8t9wwqkxfs" {
-					acc := snapshotAccs[address]
+				if delegation.ValidatorAddress == "cosmosvaloper1et77usu8q2hargvyusl4qzryev8x8t9wwqkxfs" && delegationAmount.GTE(sdk.NewDec(5)) {
 					acc.StargazeDelegator = true
+					stargazer = true
+					delegators++
+				}
+				if stargazer || staker {
 					snapshotAccs[address] = acc
 				}
 			}
@@ -127,6 +138,8 @@ Example:
 			}
 
 			fmt.Printf("accounts: %d\n", len(snapshotAccs))
+			fmt.Printf("stakers: %d\n", stakers)
+			fmt.Printf("delegators: %d\n", delegators)
 
 			// export snapshot json
 			snapshotJSON, err := json.MarshalIndent(snapshot, "", "    ")

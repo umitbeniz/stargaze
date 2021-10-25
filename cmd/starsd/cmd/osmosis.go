@@ -139,29 +139,36 @@ Example:
 				newAmount := current.Add(delegationAmount)
 				amounts[address] = newAmount
 
+				staker := false
+				stargazer := false
 				// MIN 50_OSMO
-				if newAmount.LT(sdk.NewDec(50)) {
-					continue
+				if newAmount.GTE(sdk.NewDec(50)) {
+					staker = true
 				}
 
 				acc, ok := snapshotAccs[address]
 				if !ok {
 					// account does not exist
 					acc = OsmosisSnapshotAccount{
-						OsmoAddress: address,
-						// only assign as osmo staker if it is not an LP
-						OsmoStaker:        true,
+						OsmoAddress:       address,
+						OsmoStaker:        false,
 						LiquidityProvider: false,
 						StargazeDelegator: false,
 					}
 				}
-
-				stakerCount++
-				if delegation.ValidatorAddress == "osmovaloper1et77usu8q2hargvyusl4qzryev8x8t9weceqyk" {
+				// only assign as osmo staker if it is not an LP
+				if staker {
+					acc.OsmoStaker = true
+					stakerCount++
+				}
+				if delegation.ValidatorAddress == "osmovaloper1et77usu8q2hargvyusl4qzryev8x8t9weceqyk" && delegationAmount.GTE(sdk.NewDec(5)) {
 					acc.StargazeDelegator = true
+					stargazer = true
 					delegatorCount++
 				}
-				snapshotAccs[address] = acc
+				if stargazer || staker {
+					snapshotAccs[address] = acc
+				}
 			}
 
 			snapshot := OsmosisSnapshot{
